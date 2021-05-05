@@ -1,5 +1,6 @@
 #include "VkRenderer.h"
 #include "log.h"
+#include "volk.h"
 
 void VkRenderer::create_device() {
 	uint32_t physicalDeviceCount;
@@ -104,4 +105,6 @@ void VkRenderer::create_device() {
 	}
 
 	// if no device was created, terminate the program
+
+	volkLoadDevice(device);
 };
