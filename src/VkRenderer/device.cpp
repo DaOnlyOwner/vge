@@ -1,4 +1,5 @@
 #include "VkRenderer.h"
+#include "log.h"
 
 void VkRenderer::create_device() {
 	uint32_t physicalDeviceCount;
@@ -56,5 +57,51 @@ void VkRenderer::create_device() {
 		VkPhysicalDeviceFeatures physicalDeviceFeatures;
 		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 		vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
+
+		VkDeviceCreateInfo deviceCreateInfo = {
+			.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+			.pNext = &(VkPhysicalDeviceFeatures2){
+				.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+				.pNext = &(VkPhysicalDeviceVulkan12Features){
+					.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+					.pNext = NULL,
+					.descriptorIndexing = VK_TRUE,
+					.shaderSampledImageArrayNonUniformIndexing = VK_TRUE,
+					.bufferDeviceAddress = VK_TRUE
+				},
+				.features = physicalDeviceFeatures
+			},
+			.flags = 0,
+			.queueCreateInfoCount = (graphicsQueueFamilyIndex == transferQueueFamilyIndex) ? 1 : 2,
+			.pQueueCreateInfos = (VkDeviceQueueCreateInfo[]){
+				{
+					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+					.pNext = NULL,
+					.flags = 0,
+					.queueFamilyIndex = (uint32_t)graphicsQueueFamilyIndex,
+					.queueCount = 1,
+					.pQueuePriorities = (const float[]){ 1.0 }
+				}, {
+					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+					.pNext = NULL,
+					.flags = 0,
+					.queueFamilyIndex = (uint32_t)transferQueueFamilyIndex,
+					.queueCount = 1,
+					.pQueuePriorities = (const float[]){ 1.0 }
+				}
+			},
+			.enabledLayerCount = 0,
+			.ppEnabledLayerNames = NULL,
+			.enabledExtensionCount = 1,
+			.ppEnabledExtensionNames = (const char*[]){ VK_KHR_SWAPCHAIN_EXTENSION_NAME },
+			.pEnabledFeatures = NULL
+		};
+
+		if (vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &device) != VK_SUCCESS) {
+			printf("device creation failed %s", physicalDeviceProperties.deviceName);
+			continue;
+		}
 	}
+
+	// if no device was created, terminate the program
 };
