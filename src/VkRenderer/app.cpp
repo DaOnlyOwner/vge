@@ -15,7 +15,6 @@ App::App()
 App::~App()
 {
 	renderer.destroy();
-	renderer.destroy_swapchain();
 	glfwDestroyWindow(window);
 }
 

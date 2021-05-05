@@ -19,22 +19,22 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_debug(VkDebugUtilsMessageSeverityFl
 	const VkDebugUtilsMessengerCallbackDataEXT* callback_data,
 	void* user_data)
 {
-	if (severity & static_cast<unsigned>(VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT))
+	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT)
 	{
 		printf("Error: %s\n", callback_data->pMessage);
 	}
 
-	if (severity & static_cast<unsigned>(VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT))
+	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT)
 	{
 		printf("Info: %s\n", callback_data->pMessage);
 	}
 
-	if (severity & static_cast<unsigned>(VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT))
+	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
 	{
 		printf("Verbose: %s\n", callback_data->pMessage);
 	}
 
-	if (severity & static_cast<unsigned>(VkDebugUtilsMessageSeverityFlagBitsEXT::VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT))
+	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
 	{
 		printf("Warning: %s\n", callback_data->pMessage);
 	}
