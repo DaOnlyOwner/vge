@@ -141,7 +141,7 @@ bool VkRenderer::create_swapchain(bool vsync_, VkExtent2D extent) {
 	};
 
 	if (vkCreateSwapchainKHR(device, &swapchainCreateInfo, nullptr, &swapchain) != VK_SUCCESS) {
-		printf("Unable to create swapchain\n");
+		printf("Error: Unable to create swapchain\n");
 		return false;
 	}
 
@@ -195,7 +195,7 @@ bool VkRenderer::create_swapchain(bool vsync_, VkExtent2D extent) {
 					&imageViewCreateInfo,
 					nullptr,
 					swapchainImageViews + i) != VK_SUCCESS) {
-			printf("Unable to create image view\n");
+			printf("Error: Unable to create image view\n");
 			return false;
 		}
 	}

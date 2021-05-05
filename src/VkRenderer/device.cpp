@@ -80,12 +80,12 @@ void VkRenderer::create_device() {
 		const float prios[] = { 1.0f };
 		VkDeviceQueueCreateInfo graphicsQ
 		{
-					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-					.pNext = NULL,
-					.flags = 0,
-					.queueFamilyIndex = (uint32_t)graphicsQueueFamilyIndex,
-					.queueCount = 1,
-					.pQueuePriorities = prios
+			.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			.pNext = NULL,
+			.flags = 0,
+			.queueFamilyIndex = (uint32_t)graphicsQueueFamilyIndex,
+			.queueCount = 1,
+			.pQueuePriorities = prios
 		};
 
 		VkDeviceQueueCreateInfo transferQ

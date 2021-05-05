@@ -9,7 +9,8 @@ App::App()
 	window = glfwCreateWindow(WIDTH, HEIGHT, "vge", nullptr, nullptr);
 	renderer.create_instance();
 	renderer.create_device();
-	//renderer.create_swapchain();
+	VkExtent2D extent{ WIDTH,HEIGHT };
+	renderer.create_swapchain(false, extent); // Options can later be implemented.
 	//renderer.create_pipelines();
 }
 

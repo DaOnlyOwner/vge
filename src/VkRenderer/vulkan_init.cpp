@@ -5,7 +5,6 @@
 
 #define VOLK_IMPLEMENTATION
 #include "volk.h"
-#include "../log.h"
 
 void volk_init()
 {
@@ -32,7 +31,7 @@ static VKAPI_ATTR VkBool32 VKAPI_CALL vulkan_debug(VkDebugUtilsMessageSeverityFl
 
 	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT)
 	{
-		printf("Verbose: %s\n", callback_data->pMessage);
+		//printf("Verbose: %s\n", callback_data->pMessage); That's just annoying
 	}
 
 	if (severity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
