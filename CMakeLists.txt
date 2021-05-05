@@ -14,6 +14,10 @@ list(APPEND SRC_FILES ${TEST_FILES})
 endif()
 
 add_subdirectory(glm)
+option(GLFW_BUILD_EXAMPLES "" OFF)
+option(GLFW_INSTALL "" OFF)
+option(GLFW_BUILD_TESTS "" OFF)
+add_subdirectory(glfw)
 
 find_package(Vulkan REQUIRED)
 
@@ -35,4 +39,4 @@ target_link_libraries(vge PRIVATE volk)
 target_link_libraries(vge PRIVATE glm)
 target_include_directories(vge PRIVATE ${Vulkan_INCLUDE_DIRS})
 target_include_directories(vge PRIVATE tiny_gltf)
-
+target_link_libraries(glfw)
