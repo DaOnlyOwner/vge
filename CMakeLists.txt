@@ -13,10 +13,16 @@ file(GLOB_RECURSE TEST_FILES "test/*.cpp" "test/*.h")
 list(APPEND SRC_FILES ${TEST_FILES})
 endif()
 
-add_subdirectory(volk)
 add_subdirectory(glm)
 
 find_package(Vulkan REQUIRED)
+
+if (WIN32)
+   set(VOLK_STATIC_DEFINES VK_USE_PLATFORM_WIN32_KHR)
+else()
+message(SEND_ERROR "TODO: Linux Mac")
+endif()
+add_subdirectory(volk)
 
 if(BUILD_EXE) 
 add_executable(vge ${SRC_FILES})
@@ -24,7 +30,7 @@ else()
 add_library(vge ${SRC_FILES}) 
 endif()
 
-target_compile_features(vge PRIVATE cxx_std_17)
+target_compile_features(vge PRIVATE cxx_std_20)
 target_link_libraries(vge PRIVATE volk)
 target_link_libraries(vge PRIVATE glm)
 target_include_directories(vge PRIVATE ${Vulkan_INCLUDE_DIRS})

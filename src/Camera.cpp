@@ -3,6 +3,8 @@
 #include "glm/gtc/matrix_transform.hpp"
 #include <algorithm>
 
+
+// This is from my bitbucket repo: https://bitbucket.org/DaTrueOwner/global_illumination/src/WithBricks2/
 Camera::Camera(float aspect)
 {
 	SetEyePos({ 0,0,0 });
@@ -24,7 +26,6 @@ glm::mat4 Camera::GetProjMatrix() const
 	return proj;
 }
 
-// TODO: This is not correct rn. need to improve.
 void Camera::Move(const glm::vec3& delta)
 {
 	if (abs(delta.x) <= 0.00000001 && abs(delta.y) <= 0.00000001 && abs(delta.z) <= 0.00000001) return;
