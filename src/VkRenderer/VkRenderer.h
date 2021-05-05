@@ -38,7 +38,7 @@ struct VkRenderer {
 	void create_instance();
 	void create_device();
 
-	bool create_swapchain(bool vsync);
+	bool create_swapchain(bool vsync, VkExtent2D extent);
 	int32_t get_next_swapchain_image(VkSemaphore imageAvailableSemaphore);
 	void present(VkSemaphore renderingFinishedSemaphore, int32_t imageIndex);
 

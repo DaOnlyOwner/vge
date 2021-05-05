@@ -40,15 +40,8 @@ bool enumerate_present_modes(
 }
 
 
-bool VkRenderer::create_swapchain(bool vsync_) {
+bool VkRenderer::create_swapchain(bool vsync_, VkExtent2D extent) {
 	vsync = vsync_;
-
-	VkSurfaceCapabilitiesKHR surfaceCapabilities;
-	if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(
-				physicalDevice, surface, &surfaceCapabilities) != VK_SUCCESS) {
-		printf("Couldn't query surface capabilities\n");
-		return false;
-	}
 
 	uint32_t formatCount;
 	VkSurfaceFormatKHR *surfaceFormats;
@@ -87,7 +80,7 @@ bool VkRenderer::create_swapchain(bool vsync_) {
 		}
 	}
 
-	swapchainExtent = surfaceCapabilities.currentExtent;
+	swapchainExtent = extent;
 
 	if (surfaceCapabilities.currentExtent.width == static_cast<uint32_t>(-1)) {
 		auto minExtent = surfaceCapabilities.minImageExtent;
@@ -224,7 +217,8 @@ int32_t VkRenderer::get_next_swapchain_image(VkSemaphore imageAvailableSemaphore
 				break;
 			case VK_ERROR_OUT_OF_DATE_KHR:
 				vkDeviceWaitIdle(device);
-				create_swapchain(vsync);
+				// TODO: Get the most up to date swapchain extent before re-creating the swapchain
+				create_swapchain(vsync, swapchainExtent);
 				break;
 			case VK_TIMEOUT:
 				loop = true;
@@ -258,7 +252,7 @@ void VkRenderer::present(VkSemaphore renderingFinishedSemaphore, int32_t imageIn
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
 			vkDeviceWaitIdle(device);
-			create_swapchain(vsync);
+			create_swapchain(vsync, swapchainExtent);
 			break;
 		default:
 			break;
