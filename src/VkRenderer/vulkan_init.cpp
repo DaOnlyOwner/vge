@@ -5,6 +5,7 @@
 
 #define VOLK_IMPLEMENTATION
 #include "volk.h"
+#include "../log.h"
 
 void volk_init()
 {
@@ -95,7 +96,7 @@ void VkRenderer::create_instance()
 	volkLoadInstance(instance);
 
 
-	
+
 #ifndef NDEBUG
 	VkDebugUtilsMessengerCreateInfoEXT dci{
 		.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT,
