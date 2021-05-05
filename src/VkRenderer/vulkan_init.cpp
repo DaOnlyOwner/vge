@@ -9,7 +9,7 @@
 void volk_init()
 {
 	auto result = volkInitialize();
-	if (!result) printf("ERROR: Cannot initialize volk");
+	if (result!=VK_SUCCESS) printf("ERROR: Cannot initialize volk");
 }
 
 
@@ -91,7 +91,11 @@ void VkRenderer::create_instance()
 		.ppEnabledExtensionNames = all_ext.data()
 	};
 
-	vkCreateInstance(&cInfo, nullptr, &instance);
+	VkResult result = vkCreateInstance(&cInfo, nullptr, &instance);
+	if (result != VK_SUCCESS)
+	{
+		printf("ERROR: Instance creation failed");
+	}
 	volkLoadInstance(instance);
 
 

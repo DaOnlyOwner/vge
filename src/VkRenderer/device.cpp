@@ -1,6 +1,6 @@
 #include "VkRenderer.h"
-#include "log.h"
 #include "volk.h"
+#include <cstdio>
 
 void VkRenderer::create_device() {
 	uint32_t physicalDeviceCount;
@@ -36,7 +36,7 @@ void VkRenderer::create_device() {
 		for (uint32_t j = 0; j < queueFamilyPropertyCount; j++) {
 			if (queueFamilyProperties[j].queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 				VkBool32 presentSupport;
-				vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevices[i], j, v.surface, &presentSupport);
+				vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevices[i], j, surface, &presentSupport);
 				if (presentSupport == VK_TRUE)
 					graphicsQueueFamilyIndex = j;
 			} else if (queueFamilyProperties[j].queueFlags & VK_QUEUE_TRANSFER_BIT)
@@ -59,47 +59,64 @@ void VkRenderer::create_device() {
 		vkGetPhysicalDeviceProperties(physicalDevice, &physicalDeviceProperties);
 		vkGetPhysicalDeviceFeatures(physicalDevice, &physicalDeviceFeatures);
 
-		VkDeviceCreateInfo deviceCreateInfo = {
-			.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
-			.pNext = &(VkPhysicalDeviceFeatures2){
-				.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
-				.pNext = &(VkPhysicalDeviceVulkan12Features){
-					.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
-					.pNext = NULL,
-					.descriptorIndexing = VK_TRUE,
-					.shaderSampledImageArrayNonUniformIndexing = VK_TRUE,
-					.bufferDeviceAddress = VK_TRUE
-				},
-				.features = physicalDeviceFeatures
-			},
-			.flags = 0,
-			.queueCreateInfoCount = (graphicsQueueFamilyIndex == transferQueueFamilyIndex) ? 1 : 2,
-			.pQueueCreateInfos = (VkDeviceQueueCreateInfo[]){
-				{
+		const char* extNames[] = { VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+
+		VkPhysicalDeviceVulkan12Features pdf12{
+			.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_VULKAN_1_2_FEATURES,
+			.pNext = NULL,
+			.descriptorIndexing = VK_TRUE,
+			.shaderSampledImageArrayNonUniformIndexing = VK_TRUE,
+			.bufferDeviceAddress = VK_TRUE
+		};
+
+
+		VkPhysicalDeviceFeatures2 pdf2
+		{
+			.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FEATURES_2,
+			.pNext = &pdf12,
+			.features = physicalDeviceFeatures
+		};
+		
+		const float prios[] = { 1.0f };
+		VkDeviceQueueCreateInfo graphicsQ
+		{
 					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
 					.pNext = NULL,
 					.flags = 0,
 					.queueFamilyIndex = (uint32_t)graphicsQueueFamilyIndex,
 					.queueCount = 1,
-					.pQueuePriorities = (const float[]){ 1.0 }
-				}, {
-					.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
-					.pNext = NULL,
-					.flags = 0,
-					.queueFamilyIndex = (uint32_t)transferQueueFamilyIndex,
-					.queueCount = 1,
-					.pQueuePriorities = (const float[]){ 1.0 }
-				}
-			},
+					.pQueuePriorities = prios
+		};
+
+		VkDeviceQueueCreateInfo transferQ
+		{
+			.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO,
+			.pNext = NULL,
+			.flags = 0,
+			.queueFamilyIndex = (uint32_t)transferQueueFamilyIndex,
+			.queueCount = 1,
+			.pQueuePriorities = prios
+		};
+
+		VkDeviceQueueCreateInfo queues[] = { graphicsQ, transferQ };
+
+	
+
+		VkDeviceCreateInfo deviceCreateInfo = {
+			.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
+			.pNext = &pdf2,
+			.flags = 0,
+			.queueCreateInfoCount = (graphicsQueueFamilyIndex == transferQueueFamilyIndex) ? (uint32_t)1 : (uint32_t)2,
+			.pQueueCreateInfos = queues,
 			.enabledLayerCount = 0,
 			.ppEnabledLayerNames = NULL,
 			.enabledExtensionCount = 1,
-			.ppEnabledExtensionNames = (const char*[]){ VK_KHR_SWAPCHAIN_EXTENSION_NAME },
+			.ppEnabledExtensionNames = extNames,
 			.pEnabledFeatures = NULL
 		};
 
 		if (vkCreateDevice(physicalDevice, &deviceCreateInfo, NULL, &device) != VK_SUCCESS) {
-			printf("device creation failed %s", physicalDeviceProperties.deviceName);
+			printf("Error: device creation failed %s", physicalDeviceProperties.deviceName);
 			continue;
 		}
 	}

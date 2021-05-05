@@ -6,6 +6,8 @@
 #define VK_APP_VERSION VK_MAKE_VERSION(0,0,1)
 #define VALIDATION_LAYER "VK_LAYER_KHRONOS_validation"
 
+void volk_init();
+
 struct VkRenderer {
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
