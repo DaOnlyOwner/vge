@@ -1,5 +1,4 @@
 #pragma once
-#include "GLFW/glfw3.h"
 #include "VkRenderer.h"
 
 #define WIDTH 640
@@ -10,6 +9,6 @@ struct App
 	App();
 	~App();
 	void run();
-	GLFWwindow* window;
+	class GLFWwindow* window;
 	VkRenderer renderer;
 };

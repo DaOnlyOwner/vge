@@ -1,4 +1,8 @@
 #include "app.h"
+#include <cstdio>
+#define GLFW_INCLUDE_VULKAN
+#include "GLFW/glfw3.h"
+
 
 App::App()
 {
@@ -8,6 +12,13 @@ App::App()
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // For now
 	window = glfwCreateWindow(WIDTH, HEIGHT, "vge", nullptr, nullptr);
 	renderer.create_instance();
+
+	VkResult res = glfwCreateWindowSurface(renderer.instance, window, nullptr, &renderer.surface);
+	if (res != VK_SUCCESS)
+	{
+		printf("ERROR: Surface creation failed");
+	}
+
 	renderer.create_device();
 	VkExtent2D extent{ WIDTH,HEIGHT };
 	renderer.create_swapchain(false, extent); // Options can later be implemented.

@@ -1,8 +1,10 @@
+#include "GLFW/glfw3.h"
 #include "VkRenderer.h"
 #include "volk.h"
 #include <cstdio>
 
 void VkRenderer::create_device() {
+	
 	uint32_t physicalDeviceCount;
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, NULL);
 	VkPhysicalDevice physicalDevices[16]; // assumption that no one has more than 16 gpus
