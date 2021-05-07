@@ -43,6 +43,10 @@ Allocator make_linear_allocator(int64_t size) {
 	result.allocFn = &allocate_from_linear_arena;
 	result.freeFn = &deallocate_from_linear_arena;
 
+	// Fill in header
+	auto header = reinterpret_cast<LinearArenaHeader*>(result.arena.memory);
+	header->end = result.arena.memory + sizeof(LinearArenaHeader);
+
 	return result;
 }
 

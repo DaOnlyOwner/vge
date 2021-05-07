@@ -3,6 +3,8 @@
 #include <cinttypes>
 #include <cstdio>
 
+#include "utils.h"
+
 #include "../memory.h"
 
 bool enumerate_surface_formats(
@@ -40,8 +42,14 @@ bool enumerate_present_modes(
 }
 
 
-bool VkRenderer::create_swapchain(bool vsync_, VkExtent2D extent) {
+bool VkRenderer::create_swapchain(bool vsync_) {
 	vsync = vsync_;
+
+	// Get updated surface capabilities
+	if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice, surface, &surfaceCapabilities) != VK_SUCCESS) {
+		printf("ERROR: Failed to query surface capabilities\n");
+		return false;
+	}
 
 	uint32_t formatCount;
 	VkSurfaceFormatKHR *surfaceFormats;
@@ -52,7 +60,7 @@ bool VkRenderer::create_swapchain(bool vsync_, VkExtent2D extent) {
 	uint32_t modeCount;
 	VkPresentModeKHR *presentModes;
 	if (!enumerate_present_modes(physicalDevice, surface, &modeCount, &presentModes)) {
-		printf("There are no present modes supported\n");
+		printf("ERROR: There are no present modes supported\n");
 		return false;
 	}
 
@@ -80,7 +88,7 @@ bool VkRenderer::create_swapchain(bool vsync_, VkExtent2D extent) {
 		}
 	}
 
-	swapchainExtent = extent;
+	swapchainExtent = surfaceCapabilities.currentExtent;
 
 	if (surfaceCapabilities.currentExtent.width == static_cast<uint32_t>(-1)) {
 		auto minExtent = surfaceCapabilities.minImageExtent;
@@ -217,8 +225,7 @@ int32_t VkRenderer::get_next_swapchain_image(VkSemaphore imageAvailableSemaphore
 				break;
 			case VK_ERROR_OUT_OF_DATE_KHR:
 				vkDeviceWaitIdle(device);
-				// TODO: Get the most up to date swapchain extent before re-creating the swapchain
-				create_swapchain(vsync, swapchainExtent);
+				create_swapchain(vsync);
 				break;
 			case VK_TIMEOUT:
 				loop = true;
@@ -231,7 +238,7 @@ int32_t VkRenderer::get_next_swapchain_image(VkSemaphore imageAvailableSemaphore
 	return imageIndex;
 }
 
-void VkRenderer::present(VkSemaphore renderingFinishedSemaphore, int32_t imageIndex) {
+void VkRenderer::present_swapchain_image(VkSemaphore renderingFinishedSemaphore, int32_t imageIndex) {
 	uint32_t index = imageIndex;
 
 	VkPresentInfoKHR presentInfo{
@@ -252,10 +259,20 @@ void VkRenderer::present(VkSemaphore renderingFinishedSemaphore, int32_t imageIn
 		case VK_ERROR_OUT_OF_DATE_KHR:
 		case VK_SUBOPTIMAL_KHR:
 			vkDeviceWaitIdle(device);
-			create_swapchain(vsync, swapchainExtent);
+			create_swapchain(vsync);
 			break;
 		default:
 			break;
+	}
+}
+
+void VkRenderer::create_frame_resources() {
+	for (int32_t i = 0; i < 3; ++i) {
+
+		auto semaphoreCreateInfo = make_vulkan_semaphore_create_info();
+
+		vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, imageAvailableSemaphores + i);
+		vkCreateSemaphore(device, &semaphoreCreateInfo, nullptr, renderingFinishedSemaphores + i);
 	}
 }
 
