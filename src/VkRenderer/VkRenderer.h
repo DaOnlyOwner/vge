@@ -41,9 +41,13 @@ struct VkRenderer {
 	VkPhysicalDeviceMemoryProperties memoryProperties;
 	VkDevice device;
 
-	VkQueue presentQueue;
-	VkQueue graphicsQueue;
-	VkQueue computeQueue;
+	VkQueue graphicsQueue; // this queue should be able to do everything. graphics, present, compute
+	VkQueue transferQueue;
+
+	VkCommandPool graphicsCmdPool;
+	VkCommandPool transferCmdPool;
+	VkCommandBuffer graphicsCmdBuffers[3];
+	VkCommandBuffer transferCmdBuffer;
 
 	VkSwapchainKHR swapchain;
 	VkExtent2D swapchainExtent;

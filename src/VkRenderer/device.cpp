@@ -4,7 +4,7 @@
 #include <cstdio>
 
 void VkRenderer::create_device() {
-	
+
 	uint32_t physicalDeviceCount;
 	vkEnumeratePhysicalDevices(instance, &physicalDeviceCount, NULL);
 	VkPhysicalDevice physicalDevices[16]; // assumption that no one has more than 16 gpus
@@ -41,7 +41,8 @@ void VkRenderer::create_device() {
 				vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevices[i], j, surface, &presentSupport);
 				if (presentSupport == VK_TRUE)
 					graphicsQueueFamilyIndex = j;
-			} else if (queueFamilyProperties[j].queueFlags & VK_QUEUE_TRANSFER_BIT)
+			}
+			else if (queueFamilyProperties[j].queueFlags & VK_QUEUE_TRANSFER_BIT)
 				transferQueueFamilyIndex = j;
 		}
 
@@ -78,7 +79,7 @@ void VkRenderer::create_device() {
 			.pNext = &pdf12,
 			.features = physicalDeviceFeatures
 		};
-		
+
 		const float prios[] = { 1.0f };
 		VkDeviceQueueCreateInfo graphicsQ
 		{
@@ -102,7 +103,7 @@ void VkRenderer::create_device() {
 
 		VkDeviceQueueCreateInfo queues[] = { graphicsQ, transferQ };
 
-	
+
 
 		VkDeviceCreateInfo deviceCreateInfo = {
 			.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO,
@@ -121,9 +122,49 @@ void VkRenderer::create_device() {
 			printf("Error: device creation failed %s", physicalDeviceProperties.deviceName);
 			continue;
 		}
+
+		volkLoadDevice(device);
+
+		vkGetDeviceQueue(device, graphicsQueueFamilyIndex, 0, &graphicsQueue);
+		vkGetDeviceQueue(device, transferQueueFamilyIndex, 0, &transferQueue);
+
+		VkCommandPoolCreateInfo gqCmdPoolCreateInfo = {
+			.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			.pNext = NULL,
+			.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+			.queueFamilyIndex = (uint32_t)graphicsQueueFamilyIndex
+		};
+
+		VkCommandPoolCreateInfo tqCmdPoolCreateInfo = {
+			.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO,
+			.pNext = NULL,
+			.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT,
+			.queueFamilyIndex = (uint32_t)transferQueueFamilyIndex
+		};
+
+		vkCreateCommandPool(device, &gqCmdPoolCreateInfo, NULL, &graphicsCmdPool);
+		vkCreateCommandPool(device, &tqCmdPoolCreateInfo, NULL, &transferCmdPool);
 	}
 
-	// if no device was created, terminate the program
+	// there's this myth that it's "more performant" to create a pool for every buffer, instead
+	// of 1 pool for all buffers, but i have yet to see strong evidence of this
 
-	volkLoadDevice(device);
+	VkCommandBufferAllocateInfo gCmdBufferAllocInfo = {
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = NULL,
+		.commandPool = graphicsCmdPool,
+		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandBufferCount = 3
+	};
+
+	VkCommandBufferAllocateInfo tCmdBufferAllocInfo = {
+		.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO,
+		.pNext = NULL,
+		.commandPool = transferCmdPool,
+		.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY,
+		.commandBufferCount = 1
+	};
+
+	vkAllocateCommandBuffers(device, &gCmdBufferAllocInfo, graphicsCmdBuffers);
+	vkAllocateCommandBuffers(device, &tCmdBufferAllocInfo, &transferCmdBuffer);
 };

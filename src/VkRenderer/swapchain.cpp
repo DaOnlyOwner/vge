@@ -244,7 +244,7 @@ void VkRenderer::present(VkSemaphore renderingFinishedSemaphore, int32_t imageIn
 		.pImageIndices = &index,
 		.pResults = nullptr,
 	};
-	auto result = vkQueuePresentKHR(presentQueue, &presentInfo);
+	auto result = vkQueuePresentKHR(graphicsQueue, &presentInfo);
 
 	switch (result) {
 		case VK_SUCCESS:
