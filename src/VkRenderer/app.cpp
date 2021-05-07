@@ -27,7 +27,7 @@ App::App()
 
 App::~App()
 {
-	//renderer.destroy();
+	renderer.destroy();
 	glfwDestroyWindow(window);
 }
 
