@@ -73,7 +73,7 @@ FrameBufferAttachment::FrameBufferAttachment(VkFormat format, VkImageUsageFlagBi
 		.arrayLayers = 1,
 		.samples = VK_SAMPLE_COUNT_1_BIT,
 		.tiling = VK_IMAGE_TILING_OPTIMAL,
-		.usage = (VkImageUsageFlags)(usage | VK_IMAGE_USAGE_SAMPLED_BIT)
+		.usage = (VkImageUsageFlags)(usage | VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT)
 	};
 
 	auto res = vkCreateImage(device, &ici, nullptr, &image);
@@ -87,7 +87,7 @@ FrameBufferAttachment::FrameBufferAttachment(VkFormat format, VkImageUsageFlagBi
 	{
 		.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO,
 		.allocationSize = memReq.size,
-		.memoryTypeIndex = renderer.getMemoryType(memReq.memoryTypeBits,VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,&memTypeFound)
+		.memoryTypeIndex = renderer.getMemoryType(memReq.memoryTypeBits,VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT | VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,&memTypeFound)
 	};
 	res = vkAllocateMemory(device, &memAlloc, nullptr, &memory);
 	auto res2 = vkBindImageMemory(device, image, memory, 0);
