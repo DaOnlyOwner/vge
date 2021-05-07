@@ -13,6 +13,25 @@ struct VirtualFrame {
 	VkSemaphore renderingFinishedSemaphore;
 };
 
+struct FrameBufferAttachment
+{
+	FrameBufferAttachment() = default;
+	FrameBufferAttachment(VkFormat format, VkImageUsageFlagBits usage, VkDevice device, const struct VkRenderer& renderer, int width, int height);
+	VkImage image;
+	VkDeviceMemory memory;
+	VkImageView view;
+	VkFormat format;
+};
+
+struct Framebuffer
+{
+	int width, height;
+	VkFramebuffer buffer;
+	FrameBufferAttachment pos, normal, diffuse, depth;
+	VkRenderPass renderPass;
+	VkSampler sampler;
+};
+
 struct VkRenderer {
 	VkInstance instance;
 	VkDebugUtilsMessengerEXT debugMessenger;
@@ -36,12 +55,18 @@ struct VkRenderer {
 	VirtualFrame *virtualFrames;
 	int64_t virtualFrameCount;
 
+	Framebuffer framebuffer;
+
 	void create_instance();
 	void create_device();
 
 	bool create_swapchain(bool vsync, VkExtent2D extent);
 	int32_t get_next_swapchain_image(VkSemaphore imageAvailableSemaphore);
 	void present(VkSemaphore renderingFinishedSemaphore, int32_t imageIndex);
+
+	void create_gbuffer(int width,int height);
+	uint32_t getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound) const;
+
 
 	void create_pipelines();
 	void draw();
