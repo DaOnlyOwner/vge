@@ -2,7 +2,7 @@
 #include <cstdio>
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
-
+#include "../memory.h"
 
 App::App()
 {
@@ -12,6 +12,8 @@ App::App()
 	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE); // For now
 	window = glfwCreateWindow(WIDTH, HEIGHT, "vge", nullptr, nullptr);
 	renderer.create_instance();
+	
+	init_temporary_allocator(200 * 1024 * 1024);
 
 	VkResult res = glfwCreateWindowSurface(renderer.instance, window, nullptr, &renderer.surface);
 	if (res != VK_SUCCESS)
