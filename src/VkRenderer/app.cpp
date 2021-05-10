@@ -2,10 +2,14 @@
 #include <cstdio>
 #define GLFW_INCLUDE_VULKAN
 #include "GLFW/glfw3.h"
+
 #include "../memory.h"
+
 
 App::App()
 {
+	init_temporary_allocator(200ll * 1ll << 20);
+
 	glfwInit();
 	volk_init();
 	glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -13,8 +17,6 @@ App::App()
 	window = glfwCreateWindow(WIDTH, HEIGHT, "vge", nullptr, nullptr);
 	renderer.create_instance();
 	
-	init_temporary_allocator(200 * 1024 * 1024);
-
 	VkResult res = glfwCreateWindowSurface(renderer.instance, window, nullptr, &renderer.surface);
 	if (res != VK_SUCCESS)
 	{
@@ -22,9 +24,9 @@ App::App()
 	}
 
 	renderer.create_device();
-	VkExtent2D extent{ WIDTH,HEIGHT };
-	renderer.create_swapchain(false, extent); // Options can later be implemented.
-	//renderer.create_pipelines();
+	renderer.create_swapchain(false); // Options can later be implemented.
+	renderer.create_command_pools();
+	renderer.create_frame_resources();
 }
 
 App::~App()

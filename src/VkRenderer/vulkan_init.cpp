@@ -1,6 +1,7 @@
 #include "VkRenderer.h"
 #include "GLFW/glfw3.h"
 
+#include <cstdio>
 #include <vector>
 
 #define VOLK_IMPLEMENTATION
@@ -111,3 +112,4 @@ void VkRenderer::create_instance()
 #endif // !NDEBUG
 
 }
+

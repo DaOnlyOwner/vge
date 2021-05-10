@@ -7,11 +7,6 @@
 #define VALIDATION_LAYER "VK_LAYER_KHRONOS_validation"
 
 void volk_init();
-struct VirtualFrame {
-	VkFramebuffer framebuffer;
-	VkSemaphore imageAvailableSemahpore;
-	VkSemaphore renderingFinishedSemaphore;
-};
 
 struct FrameBufferAttachment
 {
@@ -33,44 +28,51 @@ struct Framebuffer
 };
 
 struct VkRenderer {
-	VkInstance instance;
+	VkInstance instance = VK_NULL_HANDLE;
 	VkDebugUtilsMessengerEXT debugMessenger;
-	VkSurfaceKHR surface;
+	VkSurfaceKHR surface = VK_NULL_HANDLE;
 	VkSurfaceCapabilitiesKHR surfaceCapabilities;
-	VkPhysicalDevice physicalDevice;
+	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 	VkPhysicalDeviceMemoryProperties memoryProperties;
-	VkDevice device;
+	VkDevice device = VK_NULL_HANDLE;
 
-	VkQueue graphicsQueue; // this queue should be able to do everything. graphics, present, compute
-	VkQueue transferQueue;
+	// this queue should be able to do everything. graphics, present, compute
+	VkQueue graphicsQueue = VK_NULL_HANDLE;
+	VkQueue transferQueue = VK_NULL_HANDLE;
 
-	VkCommandPool graphicsCmdPool;
-	VkCommandPool transferCmdPool;
+	VkCommandPool graphicsCmdPool = VK_NULL_HANDLE;
+	VkCommandPool transferCmdPool = VK_NULL_HANDLE;
 	VkCommandBuffer graphicsCmdBuffers[3];
 	VkCommandBuffer transferCmdBuffer;
 
-	VkSwapchainKHR swapchain;
-	VkExtent2D swapchainExtent;
-	VkImage *swapchainImages;
-	VkImageView *swapchainImageViews;
-	uint32_t swapchainImageCount;
-	bool vsync;
+	VkSwapchainKHR swapchain = VK_NULL_HANDLE;
+	VkExtent2D swapchainExtent{ 0, 0 };
+	VkImage *swapchainImages = nullptr;
+	VkImageView *swapchainImageViews = nullptr;
+	uint32_t swapchainImageCount = 0;
+	bool vsync = false;
 
-	VirtualFrame *virtualFrames;
-	int64_t virtualFrameCount;
+	VkSemaphore imageAvailableSemaphores[3];
+	VkSemaphore renderingFinishedSemaphores[3];
+	VkFramebuffer primaryFramebuffers[3];
+
+	int32_t frameIdx = 0;
 
 	Framebuffer framebuffer;
 
 	void create_instance();
 	void create_device();
 
-	bool create_swapchain(bool vsync, VkExtent2D extent);
+	bool create_swapchain(bool vsync);
 	int32_t get_next_swapchain_image(VkSemaphore imageAvailableSemaphore);
-	void present(VkSemaphore renderingFinishedSemaphore, int32_t imageIndex);
+	void present_swapchain_image(VkSemaphore renderingFinishedSemaphore, int32_t imageIndex);
+
+	void create_command_pools();
+
+	void create_frame_resources();
 
 	void create_gbuffer(int width,int height);
 	uint32_t getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound) const;
-
 
 	void create_pipelines();
 	void draw();
